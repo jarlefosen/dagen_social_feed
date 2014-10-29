@@ -6,7 +6,7 @@ var app = express();
 
 var access_tokens = require('./server/access_tokens.js');
 
-var cacheLife = 15000; //milliseconds
+var cacheLife = 10000; //milliseconds
 
 var instafeed = [];
 var instaTimestamp = 0;
@@ -155,7 +155,7 @@ function fetchTwitterFeed (callback) {
 
   var options = {
     host: 'api.twitter.com',
-    path: "/1.1/search/tweets.json?q=%23dagenatifi+OR+dagenatifi+OR+%40dagenatifi&count=10&result_type=recent",
+    path: "/1.1/search/tweets.json?q=%23dagenatifi+OR+dagenatifi+OR+%40dagenatifi+exclude:retweets&count=10&result_type=recent",
     method: 'GET',
     headers: {
       'User-Agent': 'dagen_social_feed',
