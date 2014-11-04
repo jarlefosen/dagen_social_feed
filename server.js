@@ -6,7 +6,7 @@ var app = express();
 
 var access_tokens = require('./server/access_tokens.js');
 
-var cacheLife = 10000; //milliseconds
+var cacheLife = 15000; //milliseconds
 
 var instafeed = [];
 var instaTimestamp = 0;
@@ -26,12 +26,10 @@ app.get('/api/', function(req, res) {
 
 function isCacheOutdated(data, timestamp) {
   if (!Array.isArray(data)) {
-    console.log("Data is not array");
     return true;
   }
 
   if (!data) {
-    console.log("Data is not defined");
     return true;
   }
 
@@ -40,12 +38,10 @@ function isCacheOutdated(data, timestamp) {
   }
 
   if (!timestamp) {
-    console.log("Timestamp is undefined");
     return true;
   }
 
   if (timestamp < new Date().getTime()) {
-    console.log("Timestamp outdated");
     return true;
   }
 
@@ -54,15 +50,11 @@ function isCacheOutdated(data, timestamp) {
 
 function getInstas(callback) {
   if (!isCacheOutdated(instafeed, instaTimestamp)) {
-    console.log("Data from cache");
-    console.log("Valid for " + (instaTimestamp - new
-      Date().getTime())/1000 + " seconds");
     callback(instafeed);
   } else {
-    console.log("Getting instas from server ...");
     fetchInstagramFeed(function(instas) {
-      console.log("Got instas!");
       instaTimestamp = new Date().getTime() + cacheLife;
+      console.log("[" + new Date().getTime() + "] " + "Instagram Feed updated");
       instafeed = instas;
       callback(instas);
     });
@@ -72,15 +64,11 @@ function getInstas(callback) {
 
 function getTweets(callback) {
   if (!isCacheOutdated(twitterfeed, twitterTimestamp)) {
-    console.log("Data from cache");
-    console.log("Valid for " + (twitterTimestamp - new
-  Date().getTime())/1000 + " seconds");
     callback(twitterfeed);
   } else {
-    console.log("Getting tweets from server ...");
     fetchTwitterFeed(function(tweets) {
-      console.log("Got tweets!");
       twitterTimestamp = new Date().getTime() + cacheLife;
+      console.log("[" + new Date().getTime() + "] " + "Twitter Feed updated");
       twitterfeed = tweets;
       callback(tweets);
     });
@@ -109,10 +97,7 @@ function fetchInstagramFeed (callback) {
   "use strict";
 
   var auth_query = "access_token=" + access_tokens.instagram;
-  console.log(auth_query);
-  console.log("access_token=274085929.3fe2de0.bf471b93e15a4852b9ae5c8d04ef9291");
   var path = '/v1/tags/dagenatifi/media/recent?count=6&' + auth_query;
-  console.log(path);
   var options = {
     host: 'api.instagram.com',
     path: path,
@@ -124,19 +109,15 @@ function fetchInstagramFeed (callback) {
     response.setEncoding("utf8");
 
     response.on('data', function(chunk) {
-      console.log("Chunk ->");
-      console.log(chunk);
       chunked_response += chunk;
     });
 
     response.on('error', function(error) {
-      console.log("OMGLOL got Error");
       console.log(error);
     });
 
     response.on('end', function () {
       try {
-        console.log(chunked_response);
         callback(JSON.parse(chunked_response).data);
       } catch(err) {
         console.log("Could not retreive instagram feed");
