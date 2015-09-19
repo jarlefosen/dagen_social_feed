@@ -21,7 +21,7 @@ app.use('/', express.static(__dirname + '/app/www'));
 
 
 app.get('/api/', function(req, res) {
-  res.send("Yolotroll ");
+  res.send("Check out /api/twitter and /api/instagram");
 });
 
 function isCacheOutdated(data, timestamp) {
