@@ -8,6 +8,7 @@ RUN apt-get update -y
 RUN apt-get install -y nodejs npm git git-core
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN npm install -g bower
 
 # Add start script and make it executable
 ADD start.sh /tmp/start.sh
