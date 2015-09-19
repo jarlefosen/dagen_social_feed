@@ -4,7 +4,7 @@ var http = require('https');
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var app = express();
 
-var access_tokens = require('./server/access_tokens.js');
+var access_tokens = retreiveAccessTokens();
 
 var cacheLife = 15000; //milliseconds
 
@@ -13,8 +13,8 @@ var instaTimestamp = 0;
 var twitterfeed = [];
 var twitterTimestamp = 0;
 
-// Setting PORT, defaults to 3000
-app.set('port', process.env.PORT || 3000);
+// Setting PORT from evn.DAGEN_PORT, defaults to 3000
+app.set('port', process.env.DAGEN_PORT || 3000);
 
 // Setting static folder to app/www/
 app.use('/', express.static(__dirname + '/app/www'));
@@ -23,6 +23,27 @@ app.use('/', express.static(__dirname + '/app/www'));
 app.get('/api/', function(req, res) {
   res.send("Check out /api/twitter and /api/instagram");
 });
+
+function retreiveAccessTokens() {
+  var res = {
+    'twitter': "",
+    'instagram': ""
+  };
+
+  var twitter = process.env.DAGEN_TWITTER || "";
+  var instagram = process.env.DAGEN_INSTAGRAM || "";
+
+  if (!!twitter || !!instagram) {
+    console.log("Detected tokens in ENV");
+    res.twitter=twitter;
+    res.instagram=instagram;
+  } else {
+    console.log("Access tokens not defined in ENV. Reading server/access_tokens.js");
+    res = require('./server/access_tokens.js');
+  }
+
+  return res;
+}
 
 function isCacheOutdated(data, timestamp) {
   if (!Array.isArray(data)) {
