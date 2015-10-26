@@ -1,0 +1,16 @@
+http:
+  build: http
+  links:
+    - app:web
+    - server:api
+  ports:
+    - 80:80
+
+app:
+  build: app
+
+server:
+  build: server
+  environment:
+    - DAGEN_TWITTER=""
+    - DAGEN_INSTAGRAM=""

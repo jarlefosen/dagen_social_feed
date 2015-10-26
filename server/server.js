@@ -16,12 +16,25 @@ var twitterTimestamp = 0;
 // Setting PORT from evn.DAGEN_PORT, defaults to 3000
 app.set('port', process.env.DAGEN_PORT || 3000);
 
-// Setting static folder to app/www/
-app.use('/', express.static(__dirname + '/app/www'));
+app.get('/', function(req, res) {
+  var msg = "Check out /twitter and /instagram";
 
+  var err = [];
+  if (!access_tokens) {
+    err.push("No access tokens available");
+  }
+  if (access_tokens && !access_tokens.twitter) {
+    err.push("Missing Twitter token");
+  }
+  if (access_tokens && !access_tokens.instagram) {
+    err.push("Missing Instagram token");
+  }
 
-app.get('/api/', function(req, res) {
-  res.send("Check out /api/twitter and /api/instagram");
+  err.forEach(function(e) {
+    msg += '<p style="color:red";>'+e+'</p>';
+  });
+
+  res.send(msg);
 });
 
 function retreiveAccessTokens() {
@@ -39,7 +52,12 @@ function retreiveAccessTokens() {
     res.instagram=instagram;
   } else {
     console.log("Access tokens not defined in ENV. Reading server/access_tokens.js");
-    res = require('./server/access_tokens.js');
+    try {
+      var t = require('./server/access_tokens.js');
+      res = t;
+    } catch(e) {
+      console.log("Looks like you don't have any tokens");
+    }
   }
 
   return res;
@@ -70,8 +88,12 @@ function isCacheOutdated(data, timestamp) {
 }
 
 function getInstas(callback) {
-  if (!isCacheOutdated(instafeed, instaTimestamp)) {
+  if (!isCacheOutdated(instafeed, instaTimestamp) || !access_tokens || !access_tokens.instagram) {
+    console.log("Instagram: Returning cached data");
     callback(instafeed);
+  } else if (!access_tokens || !access_tokens.instagram) {
+    console.log("Instagram: Missing access tokens. Returning cached data");
+    callback(twitterfeed);
   } else {
     fetchInstagramFeed(function(instas) {
       instaTimestamp = new Date().getTime() + cacheLife;
@@ -82,9 +104,12 @@ function getInstas(callback) {
   }
 }
 
-
 function getTweets(callback) {
   if (!isCacheOutdated(twitterfeed, twitterTimestamp)) {
+    console.log("Twitter: Returning cached data");
+    callback(twitterfeed);
+  } else if (!access_tokens || !access_tokens.twitter) {
+    console.log("Twitter: Missing access tokens. Returning cached data");
     callback(twitterfeed);
   } else {
     fetchTwitterFeed(function(tweets) {
@@ -97,7 +122,7 @@ function getTweets(callback) {
 }
 
 // Returns default Twitter feed
-app.get('/api/twitter/', function(req, res) {
+app.get('/twitter/', function(req, res) {
 
   getTweets(function(data) {
     res.set("Content-Type", "application/json");
@@ -107,7 +132,7 @@ app.get('/api/twitter/', function(req, res) {
 });
 
 // Returns default Instagram feed
-app.get('/api/instagram', function(req, res) {
+app.get('/instagram', function(req, res) {
   getInstas(function(data) {
     res.set("Content-Type", "application/json");
     res.send(data);
