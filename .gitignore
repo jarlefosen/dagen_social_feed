@@ -1,6 +1,5 @@
 *.sublime-*
-node_modules
-bower_components/
+.#*
 
 # Server config variables
 server/access_tokens.js
