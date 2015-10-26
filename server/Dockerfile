@@ -1,5 +1,7 @@
 FROM node:4
 
+MAINTAINER Jarle Fosen <jarle@fosen.it>
+
 RUN npm install -g nodemon
 
 # Clone repository

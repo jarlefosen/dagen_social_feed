@@ -89,7 +89,6 @@ function isCacheOutdated(data, timestamp) {
 
 function getInstas(callback) {
   if (!isCacheOutdated(instafeed, instaTimestamp) || !access_tokens || !access_tokens.instagram) {
-    console.log("Instagram: Returning cached data");
     callback(instafeed);
   } else if (!access_tokens || !access_tokens.instagram) {
     console.log("Instagram: Missing access tokens. Returning cached data");
@@ -109,7 +108,6 @@ function getTweets(callback) {
     console.log("Twitter: Returning cached data");
     callback(twitterfeed);
   } else if (!access_tokens || !access_tokens.twitter) {
-    console.log("Twitter: Missing access tokens. Returning cached data");
     callback(twitterfeed);
   } else {
     fetchTwitterFeed(function(tweets) {
